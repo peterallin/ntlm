@@ -1,0 +1,2 @@
+add_executable(Catch_tests_run NtlmTests.cpp CatchMain.cpp)
+target_link_libraries(Catch_tests_run PRIVATE ntlm_hacked_for_tests)

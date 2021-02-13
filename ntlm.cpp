@@ -3,6 +3,23 @@
 #include <openssl/rand.h>
 #include <cstring>
 
+#if defined(USE_HACKS_FOR_REPEATABLE_TESTS)
+int not_so_random_bytes(unsigned char *buf, unsigned long num){
+    memset(buf, 42, num);
+    return 1;
+}
+
+#define RAND_bytes(buf, len) not_so_random_bytes(buf, len)
+
+uint64_t create_not_so_timestamp()
+{
+    return 0xdeadbeefbeefdead;
+}
+
+#define create_timestamp create_not_so_timestamp
+
+#endif
+
 std::string make_type1_msg(std::string domain, std::string host, int ntlm_resp_type)
 {
     std::string upper_domain = to_uppercase(domain);
@@ -462,7 +479,7 @@ Message2Handle::Message2Handle(const std::string & msg2_b64_buff)
     memset(&msg2, 0, MSG2_SIZE);
     msg2_buff = NULL;
     size_t msg2_buff_len = BASE64_DECODE_LENGTH(msg2_b64_buff.length());
-    msg2_buff = new uint8_t[msg2_buff_len];    
+    msg2_buff = new uint8_t[msg2_buff_len];
     base64_decode(msg2_b64_buff.c_str(), msg2_buff);
     memmove(&msg2, msg2_buff, MSG2_SIZE);
     /*
