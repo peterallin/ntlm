@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 // The negotiate message
 struct Type1Message
@@ -108,14 +109,13 @@ class Message2Handle
 {
 public:
     explicit Message2Handle(const std::string & msg2_b64_buff);
-    ~Message2Handle();
 
     const uint8_t* get_challenge();
     bool support_unicode() const;
     const uint8_t* get_target_info(uint16_t& target_info_len);
 private:
     Type2Message msg2{};
-    uint8_t* msg2_buff;
+    std::vector<uint8_t> msg2_buff;
 
 };
 #define MSG1_SIZE	(sizeof(struct Type1Message))

@@ -475,11 +475,10 @@ void setup_security_buffer(uint16_t &temp_len,uint32_t &temp_off, uint16_t &msg_
 Message2Handle::Message2Handle(const std::string & msg2_b64_buff)
 {
     memset(&msg2, 0, MSG2_SIZE);
-    msg2_buff = nullptr;
     size_t msg2_buff_len = BASE64_DECODE_LENGTH(msg2_b64_buff.length());
-    msg2_buff = new uint8_t[msg2_buff_len];
-    base64_decode(msg2_b64_buff.c_str(), msg2_buff);
-    memmove(&msg2, msg2_buff, MSG2_SIZE);
+    msg2_buff.resize(msg2_buff_len);
+    base64_decode(msg2_b64_buff.c_str(), msg2_buff.data());
+    memmove(&msg2, msg2_buff.data(), MSG2_SIZE);
     /*
     * following is a tricky part
     * the memmove directly may cause:
@@ -518,6 +517,6 @@ const uint8_t* Message2Handle::get_target_info(uint16_t& target_info_len)
 {
     target_info_len = msg2.target_info_len;
   
-    const auto* target_info = (const uint8_t*)( msg2_buff + msg2.target_info_off);
+    const auto* target_info = (const uint8_t*)( msg2_buff.data() + msg2.target_info_off);
     return target_info;
 }
