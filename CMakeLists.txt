@@ -5,10 +5,10 @@ set(OPENSSL_USE_STATIC_LIBS ON )
 find_package(OpenSSL REQUIRED )
 
 set(ntlm_sources
-  ntlm.cpp
-  util.cpp
+  src/ntlm.cpp
+  src/util.cpp
   include/ntlm/ntlm.h
-  util.h
+  src/util.h
 )
 
 add_library(${PROJECT_NAME} ${ntlm_sources})
