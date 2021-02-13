@@ -52,26 +52,20 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, N
     msg1.hst_off  = to_little_endian((uint32_t)(MSG1_SIZE + dom_len));
     
     size_t buff_size = MSG1_SIZE + dom_len + hst_len;
-    char *buff = nullptr;
-    buff = new char[buff_size];
-    memset(buff, 0, buff_size);
-    memmove(buff, &msg1, MSG1_SIZE);
+    std::vector<char> buff(buff_size);
+    memmove(buff.data(), &msg1, MSG1_SIZE);
     if(0 != dom_len)
-    	memmove(buff + MSG1_SIZE, ASCII_STR(upper_domain.c_str()), dom_len);
+    	memmove(buff.data() + MSG1_SIZE, ASCII_STR(upper_domain.c_str()), dom_len);
     if(0 != hst_len)
-	    memmove(buff + MSG1_SIZE + dom_len, ASCII_STR(upper_host.c_str()), hst_len);
+	    memmove(buff.data() + MSG1_SIZE + dom_len, ASCII_STR(upper_host.c_str()), hst_len);
 
     
     size_t base64_len = BASE64_ENCODE_LENGTH(buff_size) + 1;
-    char *buff_base64 = new char[base64_len];
-    memset(buff_base64, 0, base64_len);
-    base64_encode(buff, buff_base64, buff_size);
+    std::vector<char> buff_base64(base64_len);
+    base64_encode(buff.data(), buff_base64.data(), buff_size);
     buff_base64[base64_len - 1] = '\0';
-    std::string result(buff_base64);
+    std::string result(buff_base64.data());
     
-    delete []buff;
-	delete []buff_base64;
-	
 	return result;
 }
 
@@ -497,10 +491,6 @@ Message2Handle::Message2Handle(const std::string & msg2_b64_buff)
         msg2.target_info_off = to_little_endian(msg2.target_info_off);
     }
     
-}
-Message2Handle::~Message2Handle()
-{
-    delete [] msg2_buff;
 }
 
 const uint8_t* Message2Handle::get_challenge()
