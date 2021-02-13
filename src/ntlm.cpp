@@ -22,7 +22,7 @@ uint64_t create_not_so_timestamp()
 
 #endif
 
-std::string make_type1_msg(const std::string& domain, const std::string& host, int ntlm_resp_type)
+std::string make_type1_msg(const std::string& domain, const std::string& host, NtlmResponseType ntlm_resp_type)
 {
     std::string upper_domain = to_uppercase(domain);
     std::string upper_host = to_uppercase(host);
@@ -35,11 +35,11 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, i
     
     msg1.type = to_little_endian((uint32_t) TYPE1_INDICATOR);
     
-    if( USE_NTLMV1 == ntlm_resp_type)
+    if( NtlmResponseType::v1 == ntlm_resp_type)
         msg1.flag = to_little_endian((uint32_t) NTLMV1_FLAG);
-    else if( USE_NTLM2SESSION == ntlm_resp_type)
+    else if( NtlmResponseType::v2Session == ntlm_resp_type)
         msg1.flag = to_little_endian((uint32_t) NTLM2SESSION_FLAG);
-    else if (USE_NTLMV2 == ntlm_resp_type)
+    else if (NtlmResponseType::v2 == ntlm_resp_type)
         msg1.flag = to_little_endian((uint32_t) NTLMV2_FLAG);
     else
         return "";
@@ -75,7 +75,7 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, i
 	return result;
 }
 
-std::string make_type3_msg(const std::string& username, const std::string& password, const std::string& domain, const std::string& host, const std::string& msg2_b64_buff, int ntlm_resp_type)
+std::string make_type3_msg(const std::string& username, const std::string& password, const std::string& domain, const std::string& host, const std::string& msg2_b64_buff, NtlmResponseType ntlm_resp_type)
 {
     if(0 == msg2_b64_buff.length())
     {
@@ -116,7 +116,7 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
 
     msg3.session_key_len = msg3.session_key_max_len = 0;
 
-    if( USE_NTLMV1 == ntlm_resp_type)
+    if( NtlmResponseType::v1 == ntlm_resp_type)
     {
         msg3.flag = to_little_endian((uint32_t) NTLMV1_FLAG);
 
@@ -127,7 +127,7 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
         memset(ntlmv1_resp, 0, 24);
         calc_ntlmv1_resp(password, msg2_handle.get_challenge(), ntlmv1_resp);
         
-    }else if( USE_NTLM2SESSION == ntlm_resp_type)
+    }else if( NtlmResponseType::v2Session == ntlm_resp_type)
     {
         msg3.flag = to_little_endian((uint32_t) NTLM2SESSION_FLAG);
         
@@ -140,7 +140,7 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
         create_client_nonce(client_nonce, 8);
         calc_ntlm2session_resp(password, msg2_handle.get_challenge(), client_nonce, lm_resp, ntlm2session_resp);
         
-    }else if( USE_NTLMV2 == ntlm_resp_type)
+    }else if( NtlmResponseType::v2 == ntlm_resp_type)
     {
 
         msg3.flag = to_little_endian((uint32_t) NTLM2SESSION_FLAG);

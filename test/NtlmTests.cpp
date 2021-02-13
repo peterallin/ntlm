@@ -9,33 +9,33 @@ const std::string type2_message = "TlRMTVNTUAACAAAADAAMADAAAAABAoEAASNFZ4mrze8AA
 
 TEST_CASE("type1 msg, Test domain, Test host, V1")
 {
-    Approvals::verify(make_type1_msg("Test domain", "Test host", USE_NTLMV1));
+    Approvals::verify(make_type1_msg("Test domain", "Test host", NtlmResponseType::v1));
 }
 
 TEST_CASE("type1 msg, Test domain, Test host, V2")
 {
-    Approvals::verify(make_type1_msg("Test domain", "Test host", USE_NTLMV2));
+    Approvals::verify(make_type1_msg("Test domain", "Test host", NtlmResponseType::v2));
 }
 
 TEST_CASE("type1 msg, Test domain, Test host, V2Session")
 {
-    Approvals::verify(make_type1_msg("Test domain", "Test host", USE_NTLM2SESSION));
+    Approvals::verify(make_type1_msg("Test domain", "Test host", NtlmResponseType::v2Session));
 }
 
 TEST_CASE("type3 msg, test username, test password, test domain, test host, V1")
 {
     Approvals::verify(
-            make_type3_msg("Test username", "Test password", "Test domain", "Test host", type2_message, USE_NTLMV1));
+            make_type3_msg("Test username", "Test password", "Test domain", "Test host", type2_message, NtlmResponseType::v1));
 }
 
 TEST_CASE("type3 msg, test username, test password, test domain, test host, V2")
 {
     Approvals::verify(
-            make_type3_msg("Test username", "Test password", "Test domain", "Test host", type2_message, USE_NTLMV2));
+            make_type3_msg("Test username", "Test password", "Test domain", "Test host", type2_message, NtlmResponseType::v2));
 }
 
 TEST_CASE("type3 msg, test username, test password, test domain, test host, V2Session")
 {
     Approvals::verify(make_type3_msg("Test username", "Test password", "Test domain", "Test host", type2_message,
-                                     USE_NTLM2SESSION));
+                                     NtlmResponseType::v2Session));
 }
