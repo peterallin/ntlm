@@ -22,16 +22,15 @@ uint64_t create_not_so_timestamp()
 
 #endif
 
-std::string make_type1_msg(std::string domain, std::string host, int ntlm_resp_type)
+std::string make_type1_msg(const std::string& domain, const std::string& host, int ntlm_resp_type)
 {
     std::string upper_domain = to_uppercase(domain);
     std::string upper_host = to_uppercase(host);
     size_t dom_len = upper_domain.length();
     size_t hst_len = upper_host.length();    
     
-    struct Type1Message msg1;
-    memset(&msg1, 0, MSG1_SIZE);
-    
+    Type1Message msg1{};
+
     strcpy(msg1.signature, ASCII_STR(NTLMSSP_SIGNATURE));
     
     msg1.type = to_little_endian((uint32_t) TYPE1_INDICATOR);
@@ -53,7 +52,7 @@ std::string make_type1_msg(std::string domain, std::string host, int ntlm_resp_t
     msg1.hst_off  = to_little_endian((uint32_t)(MSG1_SIZE + dom_len));
     
     size_t buff_size = MSG1_SIZE + dom_len + hst_len;
-    char *buff = NULL;
+    char *buff = nullptr;
     buff = new char[buff_size];
     memset(buff, 0, buff_size);
     memmove(buff, &msg1, MSG1_SIZE);
@@ -76,7 +75,7 @@ std::string make_type1_msg(std::string domain, std::string host, int ntlm_resp_t
 	return result;
 }
 
-std::string make_type3_msg(std::string username, std::string password, std::string domain, std::string host, std::string msg2_b64_buff, int ntlm_resp_type)
+std::string make_type3_msg(const std::string& username, const std::string& password, const std::string& domain, const std::string& host, const std::string& msg2_b64_buff, int ntlm_resp_type)
 {
     if(0 == msg2_b64_buff.length())
     {
@@ -86,8 +85,7 @@ std::string make_type3_msg(std::string username, std::string password, std::stri
     
     bool support_unicode = msg2_handle.support_unicode();
     
-    struct Type3Message msg3;
-    memset(&msg3, 0, MSG3_SIZE);
+    Type3Message msg3{};
     uint16_t lm_challenge_resp_len, nt_challenge_resp_len, dom_len, usr_name_len, hst_len;
     uint32_t lm_challenge_resp_off, nt_challenge_resp_off, dom_off, usr_name_off, hst_off;
         
@@ -95,7 +93,7 @@ std::string make_type3_msg(std::string username, std::string password, std::stri
     msg3.type = to_little_endian((uint32_t) TYPE3_INDICATOR);
     
     uint8_t lm_resp[24];
-    uint8_t* ntlm_resp = new uint8_t[24];
+    auto* ntlm_resp = new uint8_t[24];
     setup_security_buffer(lm_challenge_resp_len, lm_challenge_resp_off, msg3.lm_challenge_resp_len, msg3.lm_challenge_resp_max_len, msg3.lm_challenge_resp_off, 
             24, 
             MSG3_SIZE);
@@ -155,7 +153,7 @@ std::string make_type3_msg(std::string username, std::string password, std::stri
         const uint8_t* target_info = msg2_handle.get_target_info(target_info_len);
         size_t blob_len = 28 + target_info_len; //the blob fixed len + target_info_len
         size_t ntlmv2_resp_len = 16 + blob_len;// hmac + blob
-        uint8_t *ntlmv2_resp = new uint8_t[ntlmv2_resp_len];
+        auto *ntlmv2_resp = new uint8_t[ntlmv2_resp_len];
         ntlm_resp = ntlmv2_resp;
         memset(ntlmv2_resp, 0, ntlmv2_resp_len);
         
@@ -215,7 +213,7 @@ std::string make_type3_msg(std::string username, std::string password, std::stri
     
 }
 
-void calc_lmv1_resp(std::string password, const uint8_t* challenge, uint8_t* lm_resp)
+void calc_lmv1_resp(const std::string& password, const uint8_t* challenge, uint8_t* lm_resp)
 {
     std::string upper_pwd = to_uppercase(password);
     size_t upper_pwd_len = upper_pwd.length();
@@ -254,7 +252,7 @@ void calc_lmv1_resp(std::string password, const uint8_t* challenge, uint8_t* lm_
     
 }
 
-void calc_ntlmv1_resp(std::string password, const uint8_t* challenge, uint8_t* ntlmv1_resp)
+void calc_ntlmv1_resp(const std::string& password, const uint8_t* challenge, uint8_t* ntlmv1_resp)
 {
     uint8_t ntlmv1_hash_padded[21];
     memset(ntlmv1_hash_padded, 0, 21);
@@ -281,7 +279,7 @@ void calc_ntlmv1_resp(std::string password, const uint8_t* challenge, uint8_t* n
     
 }
 
-void calc_ntlm2session_resp(std::string password, const uint8_t* challenge, uint8_t* client_nonce, uint8_t* lm_resp, uint8_t* ntlm2session_resp)
+void calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, uint8_t* client_nonce, uint8_t* lm_resp, uint8_t* ntlm2session_resp)
 {
     memset(lm_resp, 0, 24);
     memmove(lm_resp, client_nonce, 8);
@@ -318,7 +316,7 @@ void calc_ntlm2session_resp(std::string password, const uint8_t* challenge, uint
     des_enc(ntlmv1_hash_padded3, (DES_cblock*) ntlm2session_hash, (DES_cblock*) ntlm2session_resp3);
 }
 
-void calc_lmv2_resp(std::string username, std::string password, std::string domain, const uint8_t* challenge, uint8_t* lmv2_resp)
+void calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, uint8_t* lmv2_resp)
 {
     
     uint8_t client_nonce[8];
@@ -340,17 +338,16 @@ void calc_lmv2_resp(std::string username, std::string password, std::string doma
     concat(hmac, 16, client_nonce, 8, lmv2_resp);
 }
 
-void calc_ntlmv2_resp(std::string username, std::string password, std::string domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len, uint8_t* ntlmv2_resp)
+void calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len, uint8_t* ntlmv2_resp)
 {
-
     size_t blob_len = 28 + target_info_len; //the blob fixed len + target_info_len
-    uint8_t* blob = new uint8_t[blob_len];
+    auto* blob = new uint8_t[blob_len];
     memset(blob, 0, blob_len);
     create_blob(target_info, target_info_len, blob, blob_len);
     
     size_t challenge_len = 8;
     size_t data_len = challenge_len + blob_len;
-    uint8_t* data = new uint8_t[data_len];
+    auto* data = new uint8_t[data_len];
     concat(challenge, challenge_len, blob, blob_len, data);
     
     uint8_t ntlmv2_hash[16];
@@ -365,7 +362,7 @@ void calc_ntlmv2_resp(std::string username, std::string password, std::string do
     delete [] blob;   
 }
 
-void calc_ntlmv1_hash(std::string password, uint8_t* ntlmv1_hash)
+void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash)
 {
     memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
     size_t unicode_pwd_len = password.length() *2;
@@ -390,25 +387,24 @@ void calc_ntlm2session_hash(uint8_t* session_nonce, uint8_t* session_hash)
     memmove(session_hash, md5_nonce, 8);
 }
 
-void calc_ntlmv2_hash(std::string username, std::string password, std::string domain, uint8_t* ntlmv2_hash)
+void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash)
 {
-    
     memset(ntlmv2_hash, 0, 16);
-    
-    uint8_t ntlmv1_hash[MD4_DIGEST_LENGTH]; 
+
+    uint8_t ntlmv1_hash[MD4_DIGEST_LENGTH];
     memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
     calc_ntlmv1_hash(password, ntlmv1_hash);
-    
+
     size_t unicode_name_dom_len = username.length() * 2 + domain.length() * 2;
     char* unicode_name_dom = new char[unicode_name_dom_len];
-    
+
     ascii_to_unicode(to_uppercase(username), unicode_name_dom);
     ascii_to_unicode(domain, unicode_name_dom + username.length() * 2);
-    
+
     hmac_md5_enc((void*)ntlmv1_hash, MD4_DIGEST_LENGTH, (uint8_t*)unicode_name_dom, unicode_name_dom_len, ntlmv2_hash, 16);
-    
+
     delete [] unicode_name_dom;
-    
+
 }
 
 void create_client_nonce(uint8_t* nonce, size_t len)
@@ -479,7 +475,7 @@ void setup_security_buffer(uint16_t &temp_len,uint32_t &temp_off, uint16_t &msg_
 Message2Handle::Message2Handle(const std::string & msg2_b64_buff)
 {
     memset(&msg2, 0, MSG2_SIZE);
-    msg2_buff = NULL;
+    msg2_buff = nullptr;
     size_t msg2_buff_len = BASE64_DECODE_LENGTH(msg2_b64_buff.length());
     msg2_buff = new uint8_t[msg2_buff_len];
     base64_decode(msg2_b64_buff.c_str(), msg2_buff);
@@ -505,10 +501,7 @@ Message2Handle::Message2Handle(const std::string & msg2_b64_buff)
 }
 Message2Handle::~Message2Handle()
 {
-    if(NULL != msg2_buff)
-    {
-        delete [] msg2_buff;
-    }
+    delete [] msg2_buff;
 }
 
 const uint8_t* Message2Handle::get_challenge()
@@ -516,12 +509,7 @@ const uint8_t* Message2Handle::get_challenge()
     return msg2.challenge;
 }
 
-uint32_t Message2Handle::get_flag()
-{
-    return msg2.flag;
-}
-
-bool Message2Handle::support_unicode()
+bool Message2Handle::support_unicode() const
 {
     return msg2.flag & 0x1;
 }
@@ -530,6 +518,6 @@ const uint8_t* Message2Handle::get_target_info(uint16_t& target_info_len)
 {
     target_info_len = msg2.target_info_len;
   
-    const uint8_t* target_info = (const uint8_t*)( msg2_buff + msg2.target_info_off);
+    const auto* target_info = (const uint8_t*)( msg2_buff + msg2.target_info_off);
     return target_info;
 }

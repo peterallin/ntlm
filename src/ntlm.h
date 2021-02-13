@@ -4,7 +4,7 @@
 //  [1][MS-NLMP]
 //  [2][http://davenport.sourceforge.net/ntlm.html]
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 // The negotiate message
@@ -107,15 +107,14 @@ struct Type3Message
 class Message2Handle
 {
 public:
-    Message2Handle(const std::string & msg2_b64_buff);
+    explicit Message2Handle(const std::string & msg2_b64_buff);
     ~Message2Handle();
 
     const uint8_t* get_challenge();
-    uint32_t get_flag();
-    bool support_unicode();
+    bool support_unicode() const;
     const uint8_t* get_target_info(uint16_t& target_info_len);
 private:
-    Type2Message msg2;
+    Type2Message msg2{};
     uint8_t* msg2_buff;
 
 };
@@ -144,14 +143,14 @@ private:
 #define NTLMV2_FLAG 0x88207
 
 //internal use
-void calc_lmv1_resp(std::string password, const uint8_t* challenge, uint8_t* lm_resp);
-void calc_ntlmv1_resp(std::string password, const uint8_t* challenge, uint8_t* ntlmv1_resp);
-void calc_ntlm2session_resp(std::string password, const uint8_t* challenge, uint8_t* client_nonce, uint8_t* lm_resp, uint8_t* ntlm2session_resp);
-void calc_lmv2_resp(std::string username, std::string password, std::string domain, const uint8_t* challenge, uint8_t* lmv2_resp);
-void calc_ntlmv2_resp(std::string username, std::string password, std::string domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len, uint8_t* ntlmv2_resp);
-void calc_ntlmv1_hash(std::string password, uint8_t* ntlmv1_hash);
+void calc_lmv1_resp(const std::string& password, const uint8_t* challenge, uint8_t* lm_resp);
+void calc_ntlmv1_resp(const std::string& password, const uint8_t* challenge, uint8_t* ntlmv1_resp);
+void calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, uint8_t* client_nonce, uint8_t* lm_resp, uint8_t* ntlm2session_resp);
+void calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, uint8_t* lmv2_resp);
+void calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len, uint8_t* ntlmv2_resp);
+void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash);
 void calc_ntlm2session_hash(uint8_t* session_nonce, uint8_t* session_hash);
-void calc_ntlmv2_hash(std::string username, std::string password, std::string domain, uint8_t* ntlmv2_hash);
+void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash);
 void create_client_nonce(uint8_t* nonce, size_t len);
 void create_blob(const uint8_t* target_info, uint16_t target_info_len, uint8_t* blob, size_t blob_len);
 void setup_security_buffer(uint16_t &temp_len,uint32_t &temp_off, uint16_t &msg_len, uint16_t &msg_max_len, uint32_t &msg_off, uint16_t len_val, uint32_t off_val);
