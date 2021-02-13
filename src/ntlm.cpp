@@ -2,6 +2,8 @@
 #include "util.h"
 #include <openssl/rand.h>
 #include <cstring>
+#include "ntlm.h"
+
 
 #if defined(USE_HACKS_FOR_REPEATABLE_TESTS)
 int not_so_random_bytes(unsigned char *buf, unsigned long num){
