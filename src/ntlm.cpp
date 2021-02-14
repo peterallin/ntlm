@@ -292,8 +292,7 @@ std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::s
 std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t const target_info_len)
 {
     size_t const blob_len = 28 + target_info_len; //the blob fixed len + target_info_len
-    std::vector<uint8_t> blob(blob_len);
-    create_blob(target_info, target_info_len, blob.data(), blob_len);
+    auto const blob = create_blob(target_info, target_info_len, blob_len);
     
     size_t challenge_len = 8;
     size_t data_len = challenge_len + blob_len;
@@ -361,7 +360,7 @@ std::array<uint8_t, 8> create_client_nonce()
 	return result;
 }
 
-void create_blob(const uint8_t* target_info, uint16_t target_info_len, uint8_t* blob, size_t blob_len)
+std::vector<uint8_t> create_blob(const uint8_t* target_info, uint16_t target_info_len, size_t blob_len)
 {
    /*
     * Description   Content
@@ -373,22 +372,22 @@ void create_blob(const uint8_t* target_info, uint16_t target_info_len, uint8_t* 
     * 28            Target Information  Target Information block (from the Type 2 message).
     * (variable)    Unknown             4 bytes
     */
-    memset(blob, 0, blob_len);
+    std::vector<uint8_t> result(blob_len);
     if (28 + target_info_len != blob_len)
     {
-        return;
+        return {}; // Bettor error handling would be nice, but this is no worse than the original
     }
 
     uint64_t timestamp = create_timestamp();
     auto const client_nonce = create_client_nonce();
     
-    //uint8_t *blob = new uint8_t[blob_len];
-    memset(blob, 0, blob_len);
-    blob[0] = 0x1;
-    blob[1] = 0x1;
-    memmove(blob + 8, &timestamp, 8);
-    memmove(blob + 16, client_nonce.data(), 8);
-    memmove(blob + 28, target_info, target_info_len);
+    result[0] = 0x1;
+    result[1] = 0x1;
+    memmove(&result[8], &timestamp, 8);
+    memmove(&result[16], client_nonce.data(), 8);
+    memmove(&result[28], target_info, target_info_len);
+
+    return result;
 }
 
 void setup_security_buffer(uint16_t &temp_len,uint32_t &temp_off, uint16_t &msg_len, uint16_t &msg_max_len, uint32_t &msg_off, uint16_t len_val, uint32_t off_val)
