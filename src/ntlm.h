@@ -4,6 +4,7 @@
 //  [1][MS-NLMP]
 //  [2][http://davenport.sourceforge.net/ntlm.html]
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -143,11 +144,11 @@ private:
 #define NTLMV2_FLAG 0x88207
 
 //internal use
-void calc_lmv1_resp(const std::string& password, const uint8_t* challenge, uint8_t* lm_resp);
-void calc_ntlmv1_resp(const std::string& password, const uint8_t* challenge, uint8_t* ntlmv1_resp);
-void calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, uint8_t* client_nonce, uint8_t* lm_resp, uint8_t* ntlm2session_resp);
-void calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, uint8_t* lmv2_resp);
-void calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len, uint8_t* ntlmv2_resp);
+std::array<uint8_t,24> calc_lmv1_resp(const std::string& password, const uint8_t* challenge);
+std::vector<uint8_t> calc_ntlmv1_resp(const std::string& password, const uint8_t* challenge);
+std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, uint8_t* client_nonce);
+std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge);
+std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len);
 void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash);
 void calc_ntlm2session_hash(uint8_t* session_nonce, uint8_t* session_hash);
 void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash);
