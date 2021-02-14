@@ -1,5 +1,8 @@
 #include "util.h"
 
+#include <algorithm>
+#include <array>
+
 std::string to_uppercase(const std::string& s)
 {
     if(s.length() == 0){
@@ -105,7 +108,7 @@ void md5_enc(uint8_t* data, size_t data_len, uint8_t* result)
     MD5(data, data_len, result);  
 }
 
-void hmac_md5_enc(void* key, int key_len, uint8_t* data, int data_len, uint8_t* digest, unsigned int digest_len)
+void hmac_md5_enc(void* key, int key_len, const uint8_t* data, int data_len, uint8_t* digest, unsigned int digest_len)
 {
     HMAC_CTX * hmac_ctx = HMAC_CTX_new();
     HMAC_Init_ex(hmac_ctx, key, key_len, EVP_md5(), NULL);
@@ -123,12 +126,6 @@ std::string ascii_to_unicode(const std::string& ascii)
         result += '\0';
     }
     return result;
-}
-
-void concat(const uint8_t* data1, size_t data1_len, const uint8_t* data2, size_t data2_len, uint8_t* result)
-{
-    memmove(result, data1, data1_len);
-    memmove(result + data1_len, data2, data2_len);
 }
 
 uint64_t create_timestamp()
@@ -165,7 +162,7 @@ size_t base64_decode(const char *src, uint8_t *dst) {
     return decode_len;
 }
 
-void base64_encode (const char *src, char *dst, size_t length) {
+void base64_encode(const std::vector<char>& src, std::back_insert_iterator<std::vector<char>> dst) {
     BIO *bio, *b64;
     BUF_MEM *result;
 
@@ -174,12 +171,12 @@ void base64_encode (const char *src, char *dst, size_t length) {
     bio = BIO_push(b64, bio);
 
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); 
-    BIO_write(bio, src, length);
+    BIO_write(bio, src.data(), src.size());
     BIO_flush(bio);
     BIO_get_mem_ptr(bio, &result);
     BIO_set_close(bio, BIO_NOCLOSE);
     BIO_free_all(bio);
 
-    memmove(dst, (*result).data, (*result).length);
+    std::copy(result->data, result->data + result->length, dst);
     BUF_MEM_free(result);
 }

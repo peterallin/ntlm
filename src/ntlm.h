@@ -44,7 +44,7 @@ struct Type2Message
     uint32_t    target_name_off;
 
     uint32_t    flag;
-    uint8_t        challenge[8];
+    std::array<uint8_t,8> challenge;
 
     // There is a description difference between [1] and [2]
     // In [1], this is an 8-uint8_t array whose elements MUST be zero when sent and MUST be ignored on receipt.
@@ -111,7 +111,7 @@ class Message2Handle
 public:
     explicit Message2Handle(const std::string & msg2_b64_buff);
 
-    const uint8_t* get_challenge();
+    const std::array<uint8_t, 8> get_challenge();
     bool support_unicode() const;
     const uint8_t* get_target_info(uint16_t& target_info_len);
 private:
@@ -144,13 +144,13 @@ constexpr uint32_t NTLM2SESSION_FLAG = 0x88207;
 constexpr uint32_t NTLMV2_FLAG = 0x88207;
 
 //internal use
-std::array<uint8_t,24> calc_lmv1_resp(const std::string& password, const uint8_t* challenge);
-std::vector<uint8_t> calc_ntlmv1_resp(const std::string& password, const uint8_t* challenge);
-std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, const uint8_t* client_nonce);
-std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge);
-std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len);
+std::array<uint8_t,24> calc_lmv1_resp(const std::string& password, const std::array<uint8_t, 8>& challenge);
+std::vector<uint8_t> calc_ntlmv1_resp(const std::string& password, const std::array<uint8_t, 8>& challenge);
+std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp(const std::string& password, const std::array<uint8_t, 8>& challenge, const std::array<uint8_t, 8>& client_nonce);
+std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const std::array<uint8_t, 8>& challenge);
+std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const std::array<uint8_t, 8>& challenge, const uint8_t* target_info, uint16_t target_info_len);
 std::array<uint8_t, MD4_DIGEST_LENGTH> calc_ntlmv1_hash(const std::string& password);
-std::array<uint8_t, 8> calc_ntlm2session_hash(uint8_t* session_nonce);
+std::array<uint8_t, 8> calc_ntlm2session_hash(std::array<uint8_t, 16> session_nonce);
 std::array<uint8_t, 16> calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain);
 std::array<uint8_t, 8> create_client_nonce();
 std::vector<uint8_t> create_blob(const uint8_t* target_info, uint16_t target_info_len, size_t blob_len);
