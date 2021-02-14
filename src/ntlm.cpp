@@ -34,14 +34,14 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, N
 
     strcpy(msg1.signature, NTLMSSP_SIGNATURE);
     
-    msg1.type = to_little_endian((uint32_t) TYPE1_INDICATOR);
+    msg1.type = to_little_endian(TYPE1_INDICATOR);
     
     if( NtlmResponseType::v1 == ntlm_resp_type)
-        msg1.flag = to_little_endian((uint32_t) NTLMV1_FLAG);
+        msg1.flag = to_little_endian(NTLMV1_FLAG);
     else if( NtlmResponseType::v2Session == ntlm_resp_type)
-        msg1.flag = to_little_endian((uint32_t) NTLM2SESSION_FLAG);
+        msg1.flag = to_little_endian(NTLM2SESSION_FLAG);
     else if (NtlmResponseType::v2 == ntlm_resp_type)
-        msg1.flag = to_little_endian((uint32_t) NTLMV2_FLAG);
+        msg1.flag = to_little_endian(NTLMV2_FLAG);
     else
         return "";
         
@@ -85,7 +85,7 @@ std::string make_type3_msg(std::string username, const std::string& password, st
     uint32_t lm_challenge_resp_off, nt_challenge_resp_off, dom_off, usr_name_off, hst_off;
         
     strcpy(msg3.signature, NTLMSSP_SIGNATURE);
-    msg3.type = to_little_endian((uint32_t) TYPE3_INDICATOR);
+    msg3.type = to_little_endian(TYPE3_INDICATOR);
 
     std::array<uint8_t, 24> lm_resp{};
     std::vector<uint8_t> ntlm_resp(24);
@@ -113,14 +113,14 @@ std::string make_type3_msg(std::string username, const std::string& password, st
 
     if( NtlmResponseType::v1 == ntlm_resp_type)
     {
-        msg3.flag = to_little_endian((uint32_t) NTLMV1_FLAG);
+        msg3.flag = to_little_endian(NTLMV1_FLAG);
 
         lm_resp = calc_lmv1_resp(password, msg2_handle.get_challenge());
         ntlm_resp = calc_ntlmv1_resp(password, msg2_handle.get_challenge());
         
     }else if( NtlmResponseType::v2Session == ntlm_resp_type)
     {
-        msg3.flag = to_little_endian((uint32_t) NTLM2SESSION_FLAG);
+        msg3.flag = to_little_endian(NTLM2SESSION_FLAG);
         
         uint8_t client_nonce[8];
         memset(client_nonce, 0, 8);
@@ -129,7 +129,7 @@ std::string make_type3_msg(std::string username, const std::string& password, st
         
     }else if( NtlmResponseType::v2 == ntlm_resp_type)
     {
-        msg3.flag = to_little_endian((uint32_t) NTLM2SESSION_FLAG);
+        msg3.flag = to_little_endian(NTLM2SESSION_FLAG);
         lm_resp = calc_lmv2_resp(username, password, domain, msg2_handle.get_challenge());
         
         uint16_t target_info_len = 0;

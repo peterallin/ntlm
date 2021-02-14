@@ -119,13 +119,13 @@ private:
     std::vector<uint8_t> msg2_buff;
 
 };
-#define MSG1_SIZE	(sizeof(struct Type1Message))
-#define MSG2_SIZE	(sizeof(struct Type2Message))
-#define MSG3_SIZE	(sizeof(struct Type3Message))
+constexpr size_t MSG1_SIZE = sizeof(Type1Message);
+constexpr size_t MSG2_SIZE = sizeof(Type2Message);
+constexpr size_t MSG3_SIZE = sizeof(Type3Message);
 
 #define NTLMSSP_SIGNATURE "NTLMSSP"
-#define TYPE1_INDICATOR 0x1
-#define TYPE3_INDICATOR 0x3
+constexpr uint32_t TYPE1_INDICATOR = 0x1;
+constexpr uint32_t TYPE3_INDICATOR = 0x3;
 
 
 // ntlmv1 flag
@@ -134,14 +134,14 @@ private:
 // Request Target                   (0x00000004)
 // Negotiate NTLM                   (0x00000200)
 // Negotiate Always Sign            (0x00008000) <- must set mentioned in [1]
-#define NTLMV1_FLAG 0x8207
+constexpr uint32_t NTLMV1_FLAG = 0x8207;
 
 //Negotiate Extended Security       (0x00080000)
-#define NTLM2SESSION_FLAG 0x88207
+constexpr uint32_t NTLM2SESSION_FLAG = 0x88207;
 
 //Negotiate Target Info             (0x00800000) <-- this is sent by type2 msg indicates support v2
-//we still keey the flag same as session
-#define NTLMV2_FLAG 0x88207
+//we still key the flag same as session
+constexpr uint32_t NTLMV2_FLAG = 0x88207;
 
 //internal use
 std::array<uint8_t,24> calc_lmv1_resp(const std::string& password, const uint8_t* challenge);
