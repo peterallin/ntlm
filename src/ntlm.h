@@ -151,7 +151,7 @@ std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::s
 std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len);
 std::array<uint8_t, MD4_DIGEST_LENGTH> calc_ntlmv1_hash(const std::string& password);
 std::array<uint8_t, 8> calc_ntlm2session_hash(uint8_t* session_nonce);
-void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash);
+std::array<uint8_t, 16> calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain);
 void create_client_nonce(uint8_t* nonce, size_t len);
 void create_blob(const uint8_t* target_info, uint16_t target_info_len, uint8_t* blob, size_t blob_len);
 void setup_security_buffer(uint16_t &temp_len,uint32_t &temp_off, uint16_t &msg_len, uint16_t &msg_max_len, uint32_t &msg_off, uint16_t len_val, uint32_t off_val);

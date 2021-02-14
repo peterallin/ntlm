@@ -282,13 +282,11 @@ std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::s
     memset(data, 0, 16);
     concat(client_nonce, 8, challenge, 8, data);
     
-    uint8_t ntlmv2_hash[16];
-    memset(ntlmv2_hash, 0, 16);
-    calc_ntlmv2_hash(username, password, domain, ntlmv2_hash);
+    auto const ntlmv2_hash = calc_ntlmv2_hash(username, password, domain);
     
     uint8_t hmac[16];
     memset(hmac, 0, 16);
-    hmac_md5_enc((void*)ntlmv2_hash, 16, data, 16, hmac, 16);
+    hmac_md5_enc((void*)ntlmv2_hash.data(), 16, data, 16, hmac, 16);
 
     std::array<uint8_t, 24> result{};
     concat(hmac, 16, client_nonce, 8, result.data());
@@ -306,13 +304,11 @@ std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::st
     std::vector<uint8_t> data(data_len);
     concat(challenge, challenge_len, blob.data(), blob_len, data.data());
 
-    uint8_t ntlmv2_hash[16];
-    memset(ntlmv2_hash, 0, 16);
-    calc_ntlmv2_hash(username, password, domain, ntlmv2_hash);
+    auto const ntlmv2_hash = calc_ntlmv2_hash(username, password, domain);
 
     uint8_t hmac[16];
     memset(hmac, 0, 16);
-    hmac_md5_enc((void*)ntlmv2_hash, 16, data.data(), data_len, hmac, 16);
+    hmac_md5_enc((void*)ntlmv2_hash.data(), 16, data.data(), data_len, hmac, 16);
 
     std::vector<uint8_t> result(blob_len + sizeof(hmac));
     concat(hmac, 16, blob.data(), blob_len, result.data());
@@ -340,14 +336,13 @@ std::array<uint8_t, 8> calc_ntlm2session_hash(uint8_t* session_nonce)
     return  result;
 }
 
-void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash)
+std::array<uint8_t, 16> calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain)
 {
-    memset(ntlmv2_hash, 0, 16);
-
+    std::array<uint8_t, 16> result{};
     auto const ntlmv1_hash = calc_ntlmv1_hash(password);
-
     std::string const unicode_name_dom = ascii_to_unicode(to_uppercase(username)) + ascii_to_unicode(domain);
-    hmac_md5_enc((void*)ntlmv1_hash.data(), ntlmv1_hash.size(), (uint8_t*)unicode_name_dom.c_str(), unicode_name_dom.length(), ntlmv2_hash, 16);
+    hmac_md5_enc((void*)ntlmv1_hash.data(), ntlmv1_hash.size(), (uint8_t*)unicode_name_dom.c_str(), unicode_name_dom.length(), result.data(), 16);
+    return result;
 }
 
 void create_client_nonce(uint8_t* nonce, size_t len)
