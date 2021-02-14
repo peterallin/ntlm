@@ -9,8 +9,6 @@
 #include <openssl/hmac.h>
 #include <openssl/buffer.h>
 
-#define ASCII_CHAR(ch)  (ch)
-#define ASCII_STR(s) (s)
 #define BASE64_ENCODE_LENGTH(len)	(4 * (((len) + 2) / 3))
 #define BASE64_DECODE_LENGTH(len)	(3 * (((len) + 3) / 4))
 

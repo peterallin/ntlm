@@ -19,7 +19,6 @@ uint64_t create_not_so_timestamp()
 }
 
 #define create_timestamp create_not_so_timestamp
-
 #endif
 
 std::string make_type1_msg(const std::string& domain, const std::string& host, NtlmResponseType ntlm_resp_type)
@@ -31,7 +30,7 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, N
     
     Type1Message msg1{};
 
-    strcpy(msg1.signature, ASCII_STR(NTLMSSP_SIGNATURE));
+    strcpy(msg1.signature, NTLMSSP_SIGNATURE);
     
     msg1.type = to_little_endian((uint32_t) TYPE1_INDICATOR);
     
@@ -55,9 +54,9 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, N
     std::vector<char> buff(buff_size);
     memmove(buff.data(), &msg1, MSG1_SIZE);
     if(0 != dom_len)
-    	memmove(buff.data() + MSG1_SIZE, ASCII_STR(upper_domain.c_str()), dom_len);
+    	memmove(buff.data() + MSG1_SIZE, upper_domain.c_str(), dom_len);
     if(0 != hst_len)
-	    memmove(buff.data() + MSG1_SIZE + dom_len, ASCII_STR(upper_host.c_str()), hst_len);
+	    memmove(buff.data() + MSG1_SIZE + dom_len, upper_host.c_str(), hst_len);
 
     
     size_t base64_len = BASE64_ENCODE_LENGTH(buff_size) + 1;
@@ -83,7 +82,7 @@ std::string make_type3_msg(std::string username, const std::string& password, st
     uint16_t lm_challenge_resp_len, nt_challenge_resp_len, dom_len, usr_name_len, hst_len;
     uint32_t lm_challenge_resp_off, nt_challenge_resp_off, dom_off, usr_name_off, hst_off;
         
-    strcpy(msg3.signature, ASCII_STR(NTLMSSP_SIGNATURE));
+    strcpy(msg3.signature, NTLMSSP_SIGNATURE);
     msg3.type = to_little_endian((uint32_t) TYPE3_INDICATOR);
     
     uint8_t lm_resp[24];
