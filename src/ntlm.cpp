@@ -328,14 +328,8 @@ void calc_ntlmv2_resp(const std::string& username, const std::string& password, 
 void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash)
 {
     memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
-    size_t unicode_pwd_len = password.length() *2;
-    char* unicode_pwd = new char[unicode_pwd_len];
-    
-    ascii_to_unicode(password, unicode_pwd);
-    
-    md4_enc((uint8_t*)unicode_pwd, unicode_pwd_len, ntlmv1_hash);
-
-    delete []unicode_pwd;
+    string unicode_pwd = ascii_to_unicode(password);
+    md4_enc((uint8_t*)unicode_pwd.c_str(), unicode_pwd.length() , ntlmv1_hash);
 }
 
 //16-uint8_t session_nonce
