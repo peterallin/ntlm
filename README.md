@@ -1,4 +1,4 @@
-This repo is a fork of hamsergene/ntlm with some changes to user more modern C++ features trying to lessen the amount of
+This repo is a fork of hamstergene/ntlm with some changes to user more modern C++ features trying to lessen the amount of
 raw pointers and manual memory management. It was made as part of a discussion with a friend and former co-worker about
 how we would like this code base to look. If anyone wants to use it for anything, please do so under the same license as
 hamstergenes original work.
