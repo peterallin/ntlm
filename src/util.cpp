@@ -122,6 +122,17 @@ void ascii_to_unicode(std::string ascii_str, char *unicode_str)
 	}
 }
 
+std::string ascii_to_unicode(const std::string& ascii)
+{
+    std::string result;
+    result.reserve(ascii.length() * 2);
+    for (char c : ascii) {
+        result += c;
+        result += '\0';
+    }
+    return result;
+}
+
 void concat(const uint8_t* data1, size_t data1_len, const uint8_t* data2, size_t data2_len, uint8_t* result)
 {
     memmove(result, data1, data1_len);

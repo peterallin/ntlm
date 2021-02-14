@@ -28,6 +28,7 @@ void md5_enc(uint8_t* data, size_t data_len, uint8_t* result);
 void hmac_md5_enc(void* key, int key_len, uint8_t* data, int data_len, uint8_t* digest, unsigned int digest_len);
 
 void ascii_to_unicode(string ascii_str, char *unicode_str);
+std::string ascii_to_unicode(const std::string& ascii);
 void concat(const uint8_t* data1, size_t data1_len, const uint8_t* data2, size_t data2_len, uint8_t* result);
 uint64_t create_timestamp();
 

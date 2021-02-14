@@ -69,7 +69,7 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, N
 	return result;
 }
 
-std::string make_type3_msg(const std::string& username, const std::string& password, const std::string& domain, const std::string& host, const std::string& msg2_b64_buff, NtlmResponseType ntlm_resp_type)
+std::string make_type3_msg(std::string username, const std::string& password, std::string domain, std::string host, const std::string& msg2_b64_buff, NtlmResponseType ntlm_resp_type)
 {
     if(0 == msg2_b64_buff.length())
     {
@@ -160,33 +160,15 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
     memmove(msg3_buff.data() + lm_challenge_resp_off, lm_resp, lm_challenge_resp_len);
     memmove(msg3_buff.data() + nt_challenge_resp_off, ntlm_resp.data(), nt_challenge_resp_len);
 
-    char* p_domain = (char*)domain.c_str();
-    char* p_username = (char*)username.c_str();
-    char* p_host = (char*)host.c_str();
     if(support_unicode)
     {
-        p_domain = new char[dom_len];
-        p_username = new char[usr_name_len];
-        p_host = new char[hst_len];
-        
-        memset(p_domain, 0, dom_len);
-        memset(p_username, 0, usr_name_len);
-        memset(p_host, 0, hst_len);
-        
-        ascii_to_unicode(domain, p_domain);
-        ascii_to_unicode(username, p_username);
-        ascii_to_unicode(host, p_host);
+        domain = ascii_to_unicode(domain);
+        username = ascii_to_unicode(username);
+        host = ascii_to_unicode(host);
     }
-    memmove(msg3_buff.data() + dom_off, p_domain, dom_len);
-    memmove(msg3_buff.data() + usr_name_off, p_username, usr_name_len);
-    memmove(msg3_buff.data() + hst_off, p_host, hst_len);
-
-    if(support_unicode)
-    {
-        delete [] p_domain;
-        delete [] p_username;
-        delete [] p_host;
-    }
+    memmove(msg3_buff.data() + dom_off, domain.data(), dom_len);
+    memmove(msg3_buff.data() + usr_name_off, username.data(), usr_name_len);
+    memmove(msg3_buff.data() + hst_off, host.data(), hst_len);
 
     std::vector<char> msg3_buff_b64(BASE64_ENCODE_LENGTH(msg3_buff_len) + 1);
     base64_encode(msg3_buff.data(), msg3_buff_b64.data(), msg3_buff_len);
