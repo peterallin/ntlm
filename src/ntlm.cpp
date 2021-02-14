@@ -306,14 +306,13 @@ void calc_lmv2_resp(const std::string& username, const std::string& password, co
 void calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len, uint8_t* ntlmv2_resp)
 {
     size_t blob_len = 28 + target_info_len; //the blob fixed len + target_info_len
-    auto* blob = new uint8_t[blob_len];
-    memset(blob, 0, blob_len);
-    create_blob(target_info, target_info_len, blob, blob_len);
+    std::vector<uint8_t> blob(blob_len);
+    create_blob(target_info, target_info_len, blob.data(), blob_len);
     
     size_t challenge_len = 8;
     size_t data_len = challenge_len + blob_len;
     auto* data = new uint8_t[data_len];
-    concat(challenge, challenge_len, blob, blob_len, data);
+    concat(challenge, challenge_len, blob.data(), blob_len, data);
     
     uint8_t ntlmv2_hash[16];
     memset(ntlmv2_hash, 0, 16);
@@ -323,8 +322,7 @@ void calc_ntlmv2_resp(const std::string& username, const std::string& password, 
     memset(hmac, 0, 16);
     hmac_md5_enc((void*)ntlmv2_hash, 16, data, data_len, hmac, 16);
 
-    concat(hmac, 16, blob, blob_len, ntlmv2_resp); 
-    delete [] blob;   
+    concat(hmac, 16, blob.data(), blob_len, ntlmv2_resp);
 }
 
 void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash)
