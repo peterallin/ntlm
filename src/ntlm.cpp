@@ -246,11 +246,8 @@ std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp
     memset(session_nonce, 0, 16);
     concat(challenge, 8, client_nonce, 8, session_nonce);
     
-    uint8_t ntlm2session_hash[8];
-    memset(ntlm2session_hash, 0, 8);
-    calc_ntlm2session_hash(session_nonce, ntlm2session_hash);
-    
-    
+    auto const ntlm2session_hash = calc_ntlm2session_hash(session_nonce);
+
     uint8_t ntlmv1_hash_padded[21];
     memset(ntlmv1_hash_padded, 0, 21);
 
@@ -268,9 +265,9 @@ std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp
     uint8_t* ntlmv1_hash_padded2 = ntlmv1_hash_padded  + 7;
     uint8_t* ntlmv1_hash_padded3 = ntlmv1_hash_padded  + 14;
     
-    des_enc(ntlmv1_hash_padded1, (DES_cblock*) ntlm2session_hash, (DES_cblock*) ntlm2session_resp1);
-    des_enc(ntlmv1_hash_padded2, (DES_cblock*) ntlm2session_hash, (DES_cblock*) ntlm2session_resp2);
-    des_enc(ntlmv1_hash_padded3, (DES_cblock*) ntlm2session_hash, (DES_cblock*) ntlm2session_resp3);
+    des_enc(ntlmv1_hash_padded1, (DES_cblock*) ntlm2session_hash.data(), (DES_cblock*) ntlm2session_resp1);
+    des_enc(ntlmv1_hash_padded2, (DES_cblock*) ntlm2session_hash.data(), (DES_cblock*) ntlm2session_resp2);
+    des_enc(ntlmv1_hash_padded3, (DES_cblock*) ntlm2session_hash.data(), (DES_cblock*) ntlm2session_resp3);
 
     return std::make_tuple(lm_resp, ntlm2session_resp);
 }
@@ -332,14 +329,15 @@ std::array<uint8_t, MD4_DIGEST_LENGTH> calc_ntlmv1_hash(const std::string& passw
 
 //16-uint8_t session_nonce
 //8-uint8_t session_hash
-void calc_ntlm2session_hash(uint8_t* session_nonce, uint8_t* session_hash)
+std::array<uint8_t, 8> calc_ntlm2session_hash(uint8_t* session_nonce)
 {
     //session_nonce is 16-uint8_t
     //session_hash is 8 uint8_t
-    memset(session_hash, 0, 8);
+    std::array<uint8_t, 8> result{};
     uint8_t md5_nonce[16];
     md5_enc(session_nonce, 16, md5_nonce);
-    memmove(session_hash, md5_nonce, 8);
+    memmove(result.data(), md5_nonce, 8);
+    return  result;
 }
 
 void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash)
