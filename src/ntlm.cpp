@@ -155,10 +155,10 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
     }
     
     size_t msg3_buff_len = MSG3_SIZE + lm_challenge_resp_len + nt_challenge_resp_len + dom_len + usr_name_len + hst_len;
-    char* msg3_buff = new char[msg3_buff_len];
-    memmove(msg3_buff, &msg3, MSG3_SIZE);
-    memmove(msg3_buff + lm_challenge_resp_off, lm_resp, lm_challenge_resp_len);
-    memmove(msg3_buff + nt_challenge_resp_off, ntlm_resp.data(), nt_challenge_resp_len);
+    std::vector<char> msg3_buff(msg3_buff_len);
+    memmove(msg3_buff.data(), &msg3, MSG3_SIZE);
+    memmove(msg3_buff.data() + lm_challenge_resp_off, lm_resp, lm_challenge_resp_len);
+    memmove(msg3_buff.data() + nt_challenge_resp_off, ntlm_resp.data(), nt_challenge_resp_len);
 
     char* p_domain = (char*)domain.c_str();
     char* p_username = (char*)username.c_str();
@@ -177,9 +177,9 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
         ascii_to_unicode(username, p_username);
         ascii_to_unicode(host, p_host);
     }
-    memmove(msg3_buff + dom_off, p_domain, dom_len);
-    memmove(msg3_buff + usr_name_off, p_username, usr_name_len);
-    memmove(msg3_buff + hst_off, p_host, hst_len);
+    memmove(msg3_buff.data() + dom_off, p_domain, dom_len);
+    memmove(msg3_buff.data() + usr_name_off, p_username, usr_name_len);
+    memmove(msg3_buff.data() + hst_off, p_host, hst_len);
 
     if(support_unicode)
     {
@@ -188,13 +188,11 @@ std::string make_type3_msg(const std::string& username, const std::string& passw
         delete [] p_host;
     }
 
-    char *msg3_buff_b64 = new char[BASE64_ENCODE_LENGTH(msg3_buff_len) + 1];
-    base64_encode(msg3_buff, msg3_buff_b64, msg3_buff_len);
+    std::vector<char> msg3_buff_b64(BASE64_ENCODE_LENGTH(msg3_buff_len) + 1);
+    base64_encode(msg3_buff.data(), msg3_buff_b64.data(), msg3_buff_len);
     msg3_buff_b64[BASE64_ENCODE_LENGTH(msg3_buff_len)] = '\0';
-    std::string result(msg3_buff_b64);
+    std::string result(msg3_buff_b64.data());
 
-    delete [] msg3_buff;
-    delete [] msg3_buff_b64;
     return result;
 }
 
