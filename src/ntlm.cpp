@@ -352,16 +352,8 @@ void calc_ntlmv2_hash(const std::string& username, const std::string& password, 
     memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
     calc_ntlmv1_hash(password, ntlmv1_hash);
 
-    size_t unicode_name_dom_len = username.length() * 2 + domain.length() * 2;
-    char* unicode_name_dom = new char[unicode_name_dom_len];
-
-    ascii_to_unicode(to_uppercase(username), unicode_name_dom);
-    ascii_to_unicode(domain, unicode_name_dom + username.length() * 2);
-
-    hmac_md5_enc((void*)ntlmv1_hash, MD4_DIGEST_LENGTH, (uint8_t*)unicode_name_dom, unicode_name_dom_len, ntlmv2_hash, 16);
-
-    delete [] unicode_name_dom;
-
+    std::string const unicode_name_dom = ascii_to_unicode(to_uppercase(username)) + ascii_to_unicode(domain);
+    hmac_md5_enc((void*)ntlmv1_hash, MD4_DIGEST_LENGTH, (uint8_t*)unicode_name_dom.c_str(), unicode_name_dom.length(), ntlmv2_hash, 16);
 }
 
 void create_client_nonce(uint8_t* nonce, size_t len)
