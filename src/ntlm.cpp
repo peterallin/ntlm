@@ -310,8 +310,8 @@ void calc_ntlmv2_resp(const std::string& username, const std::string& password, 
     
     size_t challenge_len = 8;
     size_t data_len = challenge_len + blob_len;
-    auto* data = new uint8_t[data_len];
-    concat(challenge, challenge_len, blob.data(), blob_len, data);
+    std::vector<uint8_t> data(data_len);
+    concat(challenge, challenge_len, blob.data(), blob_len, data.data());
     
     uint8_t ntlmv2_hash[16];
     memset(ntlmv2_hash, 0, 16);
@@ -319,7 +319,7 @@ void calc_ntlmv2_resp(const std::string& username, const std::string& password, 
     
     uint8_t hmac[16];
     memset(hmac, 0, 16);
-    hmac_md5_enc((void*)ntlmv2_hash, 16, data, data_len, hmac, 16);
+    hmac_md5_enc((void*)ntlmv2_hash, 16, data.data(), data_len, hmac, 16);
 
     concat(hmac, 16, blob.data(), blob_len, ntlmv2_resp);
 }
