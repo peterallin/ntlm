@@ -328,7 +328,7 @@ void calc_ntlmv2_resp(const std::string& username, const std::string& password, 
 void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash)
 {
     memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
-    string unicode_pwd = ascii_to_unicode(password);
+    std::string unicode_pwd = ascii_to_unicode(password);
     md4_enc((uint8_t*)unicode_pwd.c_str(), unicode_pwd.length() , ntlmv1_hash);
 }
 

@@ -1,8 +1,8 @@
 #ifndef	__NTLM_UTIL_INCLUDE
 #define	__NTLM_UTIL_INCLUDE
+
 #include <string>
 #include <cstring>
-using namespace std;
 #include <openssl/des.h>
 #include <openssl/md4.h>
 #include <openssl/md5.h>
@@ -14,7 +14,7 @@ using namespace std;
 #define BASE64_ENCODE_LENGTH(len)	(4 * (((len) + 2) / 3))
 #define BASE64_DECODE_LENGTH(len)	(3 * (((len) + 3) / 4))
 
-std::string to_uppercase(const string& s);
+std::string to_uppercase(const std::string& s);
 
 bool is_big_endian();
 uint16_t to_little_endian(uint16_t i_data);
