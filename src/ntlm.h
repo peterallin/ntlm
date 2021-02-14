@@ -149,7 +149,7 @@ std::vector<uint8_t> calc_ntlmv1_resp(const std::string& password, const uint8_t
 std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, uint8_t* client_nonce);
 std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge);
 std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge, const uint8_t* target_info, uint16_t target_info_len);
-void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash);
+std::array<uint8_t, MD4_DIGEST_LENGTH> calc_ntlmv1_hash(const std::string& password);
 void calc_ntlm2session_hash(uint8_t* session_nonce, uint8_t* session_hash);
 void calc_ntlmv2_hash(const std::string& username, const std::string& password, const std::string& domain, uint8_t* ntlmv2_hash);
 void create_client_nonce(uint8_t* nonce, size_t len);

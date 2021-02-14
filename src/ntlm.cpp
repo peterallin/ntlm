@@ -216,12 +216,10 @@ std::vector<uint8_t> calc_ntlmv1_resp(const std::string& password, const uint8_t
     uint8_t ntlmv1_hash_padded[21];
     memset(ntlmv1_hash_padded, 0, 21);
 
-    uint8_t ntlmv1_hash[MD4_DIGEST_LENGTH]; // 16-uint8_t
-    memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
-    calc_ntlmv1_hash(password, ntlmv1_hash);
+    auto const ntlmv1_hash = calc_ntlmv1_hash(password);
     
     memset(ntlmv1_hash_padded, 0, 21);
-    memmove(ntlmv1_hash_padded, ntlmv1_hash, MD4_DIGEST_LENGTH);
+    memmove(ntlmv1_hash_padded, ntlmv1_hash.data(), ntlmv1_hash.size());
 
     std::vector<uint8_t> result(24);
     uint8_t* ntlmv1_resp1 = result.data();
@@ -256,12 +254,10 @@ std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp
     uint8_t ntlmv1_hash_padded[21];
     memset(ntlmv1_hash_padded, 0, 21);
 
-    uint8_t ntlmv1_hash[MD4_DIGEST_LENGTH]; // 16-uint8_t
-    memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
-    calc_ntlmv1_hash(password, ntlmv1_hash);
+    auto const ntlmv1_hash = calc_ntlmv1_hash(password);
     
     memset(ntlmv1_hash_padded, 0, 21);
-    memmove(ntlmv1_hash_padded, ntlmv1_hash, MD4_DIGEST_LENGTH);
+    memmove(ntlmv1_hash_padded, ntlmv1_hash.data(), ntlmv1_hash.size());
 
     std::vector<uint8_t> ntlm2session_resp(24);
     uint8_t* ntlm2session_resp1 = ntlm2session_resp.data();
@@ -326,11 +322,12 @@ std::vector<uint8_t> calc_ntlmv2_resp(const std::string& username, const std::st
     return result;
 }
 
-void calc_ntlmv1_hash(const std::string& password, uint8_t* ntlmv1_hash)
+std::array<uint8_t, MD4_DIGEST_LENGTH> calc_ntlmv1_hash(const std::string& password)
 {
-    memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
+    std::array<uint8_t, MD4_DIGEST_LENGTH> result{};
     std::string unicode_pwd = ascii_to_unicode(password);
-    md4_enc((uint8_t*)unicode_pwd.c_str(), unicode_pwd.length() , ntlmv1_hash);
+    md4_enc((uint8_t*)unicode_pwd.c_str(), unicode_pwd.length() , result.data());
+    return result;
 }
 
 //16-uint8_t session_nonce
@@ -349,12 +346,10 @@ void calc_ntlmv2_hash(const std::string& username, const std::string& password, 
 {
     memset(ntlmv2_hash, 0, 16);
 
-    uint8_t ntlmv1_hash[MD4_DIGEST_LENGTH];
-    memset(ntlmv1_hash, 0, MD4_DIGEST_LENGTH);
-    calc_ntlmv1_hash(password, ntlmv1_hash);
+    auto const ntlmv1_hash = calc_ntlmv1_hash(password);
 
     std::string const unicode_name_dom = ascii_to_unicode(to_uppercase(username)) + ascii_to_unicode(domain);
-    hmac_md5_enc((void*)ntlmv1_hash, MD4_DIGEST_LENGTH, (uint8_t*)unicode_name_dom.c_str(), unicode_name_dom.length(), ntlmv2_hash, 16);
+    hmac_md5_enc((void*)ntlmv1_hash.data(), ntlmv1_hash.size(), (uint8_t*)unicode_name_dom.c_str(), unicode_name_dom.length(), ntlmv2_hash, 16);
 }
 
 void create_client_nonce(uint8_t* nonce, size_t len)
