@@ -122,10 +122,8 @@ std::string make_type3_msg(std::string username, const std::string& password, st
     {
         msg3.flag = to_little_endian(NTLM2SESSION_FLAG);
         
-        uint8_t client_nonce[8];
-        memset(client_nonce, 0, 8);
-        create_client_nonce(client_nonce, 8);
-        std::tie(lm_resp, ntlm_resp) = calc_ntlm2session_resp(password, msg2_handle.get_challenge(), client_nonce);
+        auto client_nonce = create_client_nonce();
+        std::tie(lm_resp, ntlm_resp) = calc_ntlm2session_resp(password, msg2_handle.get_challenge(), client_nonce.data());
         
     }else if( NtlmResponseType::v2 == ntlm_resp_type)
     {
@@ -237,7 +235,7 @@ std::vector<uint8_t> calc_ntlmv1_resp(const std::string& password, const uint8_t
     return result;
 }
 
-std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, uint8_t* client_nonce)
+std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp(const std::string& password, const uint8_t* challenge, const uint8_t* client_nonce)
 {
     std::array<uint8_t, 24> lm_resp{};
     memmove(lm_resp.data(), client_nonce, 8);
@@ -274,13 +272,11 @@ std::tuple<std::array<uint8_t, 24>, std::vector<uint8_t>> calc_ntlm2session_resp
 
 std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::string& password, const std::string& domain, const uint8_t* challenge)
 {
-    uint8_t client_nonce[8];
-    memset(client_nonce, 0, 8);
-    create_client_nonce(client_nonce, 8);
+    auto const client_nonce = create_client_nonce();
 
     uint8_t data[16];
     memset(data, 0, 16);
-    concat(client_nonce, 8, challenge, 8, data);
+    concat(client_nonce.data(), 8, challenge, 8, data);
     
     auto const ntlmv2_hash = calc_ntlmv2_hash(username, password, domain);
     
@@ -289,7 +285,7 @@ std::array<uint8_t, 24> calc_lmv2_resp(const std::string& username, const std::s
     hmac_md5_enc((void*)ntlmv2_hash.data(), 16, data, 16, hmac, 16);
 
     std::array<uint8_t, 24> result{};
-    concat(hmac, 16, client_nonce, 8, result.data());
+    concat(hmac, 16, client_nonce.data(), 8, result.data());
     return result;
 }
 
@@ -345,28 +341,24 @@ std::array<uint8_t, 16> calc_ntlmv2_hash(const std::string& username, const std:
     return result;
 }
 
-void create_client_nonce(uint8_t* nonce, size_t len)
+std::array<uint8_t, 8> create_client_nonce()
 {
-    memset(nonce, 0, len);
-    if(8 != len)
-    {
-        return;
-    }
-	int ret = RAND_bytes(nonce, 8);
+    std::array<uint8_t, 8> result{};
+	int ret = RAND_bytes(result.data(), 8);
 	//if fail, set 0xffffffff0102034
 	if(ret != 1)
 	{
         for(int i = 0; i < 4; ++i)
         {
-        	nonce[i] = 0xff;
+        	result[i] = 0xff;
         }
         
         for(int j = 4; j < 8; ++j)
 		{
-			nonce[j] = j;
+			result[j] = j;
 		}
-
 	}
+	return result;
 }
 
 void create_blob(const uint8_t* target_info, uint16_t target_info_len, uint8_t* blob, size_t blob_len)
@@ -388,16 +380,14 @@ void create_blob(const uint8_t* target_info, uint16_t target_info_len, uint8_t* 
     }
 
     uint64_t timestamp = create_timestamp();
-    uint8_t client_nonce[8];
-    memset(client_nonce, 0, 8);
-    create_client_nonce(client_nonce, 8);
+    auto const client_nonce = create_client_nonce();
     
     //uint8_t *blob = new uint8_t[blob_len];
     memset(blob, 0, blob_len);
     blob[0] = 0x1;
     blob[1] = 0x1;
     memmove(blob + 8, &timestamp, 8);
-    memmove(blob + 16, client_nonce, 8);
+    memmove(blob + 16, client_nonce.data(), 8);
     memmove(blob + 28, target_info, target_info_len);
 }
 
