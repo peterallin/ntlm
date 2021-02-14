@@ -114,14 +114,6 @@ void hmac_md5_enc(void* key, int key_len, uint8_t* data, int data_len, uint8_t* 
     HMAC_CTX_free(hmac_ctx);
 }
 
-void ascii_to_unicode(std::string ascii_str, char *unicode_str)
-{
-	for (size_t i = 0; i < ascii_str.length(); i++) {
-		unicode_str[2*i] = ASCII_CHAR(ascii_str[i]);
-		unicode_str[2*i +1] = '\0';
-	}
-}
-
 std::string ascii_to_unicode(const std::string& ascii)
 {
     std::string result;
