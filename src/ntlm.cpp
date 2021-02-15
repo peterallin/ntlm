@@ -64,14 +64,11 @@ std::string make_type1_msg(const std::string& domain, const std::string& host, N
         std::copy(upper_host.begin(), upper_host.end(), std::back_inserter(buff));
     }
 
-    size_t base64_len = BASE64_ENCODE_LENGTH(MSG1_SIZE + dom_len + hst_len) + 1;
+    size_t base64_len = BASE64_ENCODE_LENGTH(MSG1_SIZE + dom_len + hst_len);
     std::vector<char> buff_base64;
     buff_base64.reserve(base64_len);
     base64_encode(buff, std::back_inserter(buff_base64));
-    buff_base64[base64_len - 1] = '\0';
-    std::string result(buff_base64.data());
-    
-	return result;
+	return std::string(buff_base64.begin(), buff_base64.end());
 }
 
 std::string make_type3_msg(std::string username, const std::string& password, std::string domain, std::string host, const std::string& msg2_b64_buff, NtlmResponseType ntlm_resp_type)
@@ -165,12 +162,9 @@ std::string make_type3_msg(std::string username, const std::string& password, st
     std::copy(host.begin(), host.end(), &msg3_buff[hst_off]);
 
     std::vector<char> msg3_buff_b64;
-    msg3_buff_b64.reserve(BASE64_ENCODE_LENGTH(msg3_buff_len) + 1);
+    msg3_buff_b64.reserve(BASE64_ENCODE_LENGTH(msg3_buff_len));
     base64_encode(msg3_buff, std::back_inserter(msg3_buff_b64));
-    msg3_buff_b64[BASE64_ENCODE_LENGTH(msg3_buff_len)] = '\0';
-    std::string result(msg3_buff_b64.data());
-
-    return result;
+    return std::string(msg3_buff_b64.begin(), msg3_buff_b64.end());
 }
 
 std::array<uint8_t,24> calc_lmv1_resp(const std::string& password, const std::array<uint8_t, 8>& challenge)
