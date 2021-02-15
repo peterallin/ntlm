@@ -400,7 +400,7 @@ Message2Handle::Message2Handle(const std::string & msg2_b64_buff)
     
 }
 
-const std::array<uint8_t, 8> Message2Handle::get_challenge()
+std::array<uint8_t, 8> Message2Handle::get_challenge() const
 {
     return msg2.challenge;
 }

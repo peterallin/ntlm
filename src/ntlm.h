@@ -111,7 +111,7 @@ class Message2Handle
 public:
     explicit Message2Handle(const std::string & msg2_b64_buff);
 
-    const std::array<uint8_t, 8> get_challenge();
+    std::array<uint8_t, 8> get_challenge() const;
     bool support_unicode() const;
     const uint8_t* get_target_info(uint16_t& target_info_len);
 private:
